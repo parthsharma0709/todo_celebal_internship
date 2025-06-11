@@ -1,4 +1,4 @@
-import { useState ,useEffect} from "react";
+import { useState ,useEffect,useRef} from "react";
 import { v4 as uuidv4 } from 'uuid';
 function App() {
   const [todos, setTodos] = useState([]);
@@ -6,6 +6,8 @@ function App() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [completeTask,setCompleteTask]=useState(false);
   const [showFilteredTodos,setFilteredTodos]=useState([]);
+  const isFirstLoad = useRef(true);
+
   
   // Load todos on mount
   useEffect(() => {
@@ -14,9 +16,14 @@ function App() {
   }, []);
 
   // Save todos to localStorage whenever updated
-  useEffect(() => {
-    localStorage.setItem("storedTodos", JSON.stringify(todos));
-  }, [todos]);
+ useEffect(() => {
+  if (isFirstLoad.current) {
+    isFirstLoad.current = false;
+    return; // skip saving on first load
+  }
+  localStorage.setItem("storedTodos", JSON.stringify(todos));
+}, [todos]);
+
 
   
   const deleteTodo = (id) => {
@@ -42,6 +49,10 @@ function App() {
 
   if (trimmedTask === "") {
     alert("Please add a todo");
+    return;
+  }
+  if(trimmedTask.length>500){
+    alert("task is too long ");
     return;
   }
 
@@ -118,10 +129,11 @@ const completedCount= todos.filter(todo=> todo.completed===true).length;
           </button>
         </div>
         <div className="flex justify-around bg-white mb-5  border rounded">
-          <button onClick={showAll}  className="p-3 m-1 bg-black text-white border rounded">All Tasks {todos.length}</button>
-          <button onClick={showCompleted} className="p-3 m-1 bg-black text-white border rounded">Completed Tasks {completedCount}</button>
-          <button onClick={showInCompleted} className="p-3 m-1 bg-black text-white border rounded">Incompleted Tasks {todos.length-completedCount}</button>
+          <button onClick={showAll}  className="p-3 m-1 bg-black text-white border rounded">All Tasks : {todos.length}</button>
+          <button onClick={showCompleted} className="p-3 m-1 bg-black text-white border rounded">Completed Tasks : {completedCount}</button>
+          <button onClick={showInCompleted} className="p-3 m-1 bg-black text-white border rounded">Incompleted Tasks : {todos.length-completedCount}</button>
         </div>
+
 
         {/* Todo List Section */}
         <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
