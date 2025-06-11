@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { v4 as uuidv4 } from 'uuid';
 function App() {
   const [todos, setTodos] = useState([]);
@@ -6,7 +6,19 @@ function App() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [completeTask,setCompleteTask]=useState(false);
   const [showFilteredTodos,setFilteredTodos]=useState([]);
+  
+  // Load todos on mount
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("storedTodos") || "[]");
+    setTodos(saved);
+  }, []);
 
+  // Save todos to localStorage whenever updated
+  useEffect(() => {
+    localStorage.setItem("storedTodos", JSON.stringify(todos));
+  }, [todos]);
+
+  
   const deleteTodo = (id) => {
   const updatedTodos = todos.filter(todo => todo.id !== id);
   setTodos(updatedTodos);
@@ -18,6 +30,7 @@ function App() {
   setEditingIndex(id);
   setTask(todos[index].title);
   setCompleteTask(todos[index].completed);
+  setFilteredTodos([]);
 };
 
 
@@ -49,29 +62,39 @@ function App() {
     const newTodo = {
       id: uuidv4(),
       title: trimmedTask,
-      completed: completeTask
+      completed: completeTask,
+      createdAt: new Date()
     };
     setTodos([...todos, newTodo]);
+  
   } else {
     alert("Todo has already been added");
     return;
   }
 
   setTask("");
+  setCompleteTask(false);
 };
 
+const completedCount= todos.filter(todo=> todo.completed===true).length;
  const showCompleted=()=>{
-            const updatedTodos=todos.filter(todo=>todo.completed==true);
+            const updatedTodos=todos.filter(todo=>todo.completed===true);
             setFilteredTodos(updatedTodos);
+          
+       
  }
  const showInCompleted= ()=>{
-  const updatedTodos=todos.filter(todo=> todo.completed==false);
+  const updatedTodos=todos.filter(todo=> todo.completed===false);
   setFilteredTodos(updatedTodos)
+  
  }
  const showAll=()=>{
   setFilteredTodos([]);
+  
  }
 
+  const sortedTodos = [...(showFilteredTodos.length ? showFilteredTodos : todos)]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-slate-700 to-slate-900 flex justify-center items-center">
       <div className="w-[800px] min-h-[700px] bg-white/5 backdrop-blur border border-white/10 rounded-2xl shadow-xl p-6">
@@ -95,14 +118,14 @@ function App() {
           </button>
         </div>
         <div className="flex justify-around bg-white mb-5  border rounded">
-          <button onClick={showAll}  className="p-3 m-1 bg-black text-white border rounded">All Tasks</button>
-          <button onClick={showCompleted} className="p-3 m-1 bg-black text-white border rounded">Completed Tasks</button>
-          <button onClick={showInCompleted} className="p-3 m-1 bg-black text-white border rounded">Incompleted Tasks</button>
+          <button onClick={showAll}  className="p-3 m-1 bg-black text-white border rounded">All Tasks {todos.length}</button>
+          <button onClick={showCompleted} className="p-3 m-1 bg-black text-white border rounded">Completed Tasks {completedCount}</button>
+          <button onClick={showInCompleted} className="p-3 m-1 bg-black text-white border rounded">Incompleted Tasks {todos.length-completedCount}</button>
         </div>
 
         {/* Todo List Section */}
         <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-          {(showFilteredTodos.length>0? showFilteredTodos: todos).map((todo) => (
+          {sortedTodos.map((todo) => (
             <li
               key={todo.id}
               className="bg-white/10 text-white flex items-center justify-between px-4 py-3 rounded-lg shadow hover:bg-white/20 transition"
