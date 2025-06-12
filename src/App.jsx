@@ -7,6 +7,7 @@ function App() {
   const [completeTask,setCompleteTask]=useState(false);
   const [showFilteredTodos,setFilteredTodos]=useState([]);
   const isFirstLoad = useRef(true);
+  const [showRecent,setShowRecent]=useState(true);
 
   
   // Load todos on mount
@@ -109,7 +110,7 @@ const completedCount= todos.filter(todo=> todo.completed===true).length;
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-slate-700 to-slate-900 flex justify-center items-center">
       <div className="w-[800px] min-h-[700px] bg-white/5 backdrop-blur border border-white/10 rounded-2xl shadow-xl p-6">
-        <h1 className="text-2xl text-white font-semibold mb-6 text-center">📝 Todo List</h1>
+        <h1 className="text-2xl text-white font-semibold mb-6 text-center"> Todo List</h1>
 
         {/* Input Section */}
         <div className="flex gap-4 mb-6">
@@ -129,6 +130,7 @@ const completedCount= todos.filter(todo=> todo.completed===true).length;
           </button>
         </div>
         <div className="flex justify-around bg-white mb-5  border rounded">
+        <button onClick={()=>setShowRecent(c=>!c)} className="p-3 m-1 bg-black text-white border rounded">{ showRecent=== true?"Show Oldest":"Show Recent"}</button>
           <button onClick={showAll}  className="p-3 m-1 bg-black text-white border rounded">All Tasks : {todos.length}</button>
           <button onClick={showCompleted} className="p-3 m-1 bg-black text-white border rounded">Completed Tasks : {completedCount}</button>
           <button onClick={showInCompleted} className="p-3 m-1 bg-black text-white border rounded">Incompleted Tasks : {todos.length-completedCount}</button>
@@ -137,7 +139,7 @@ const completedCount= todos.filter(todo=> todo.completed===true).length;
 
         {/* Todo List Section */}
         <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-          {sortedTodos.map((todo) => (
+           { (showRecent=== true? sortedTodos:todos).map((todo) => (
             <li
               key={todo.id}
               className="bg-white/10 text-white flex items-center justify-between px-4 py-3 rounded-lg shadow hover:bg-white/20 transition"
