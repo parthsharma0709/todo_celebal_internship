@@ -138,7 +138,7 @@ const completedCount= todos.filter(todo=> todo.completed===true).length;
 
 
         {/* Todo List Section */}
-        <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
+        <ul className="space-y-3 max-h-[440px] overflow-y-auto pr-2">
            { (showRecent=== true? sortedTodos:todos).map((todo) => (
             <li
               key={todo.id}
